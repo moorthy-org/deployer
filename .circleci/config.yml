@@ -5,55 +5,48 @@
 # DOCKER_PASS
 #
 # Read the README for more information.
-machine:
+version: 2
+jobs:
+ build:
+  # Variable expansion in working_directory not supported at this time
+  # You will need to modify the code below to reflect your github account/repo setup
+  working_directory: /go/src/github.com/nrmoorthy/deployer
+
+  docker:
+   - image: circleci/golang:1.11.1
   environment:
-    GOPATH_HEAD: "$(echo $GOPATH | cut -d ':' -f 1)"
-    GOPATH_BASE: "$GOPATH_HEAD/src/github.com/$CIRCLE_PROJECT_USERNAME"
     GO15VENDOREXPERIMENT: 1
-    DOCKER_REPO: "$(if [ $CIRCLE_PROJECT_USERNAME == 'Securing-DevOps' ]; then echo securingdevops; else echo $DOCKER_USER; fi)"
+  # branches:
+  #   only:
+  #     - master
+  steps:
+   - checkout
+   - setup_remote_docker
+   - run: echo 'export GOPATH_HEAD="$(echo ${GOPATH}|cut -d ':' -f 1)"' >> $BASH_ENV
+   - run: echo 'export GOPATH_BASE="${GOPATH_HEAD}/src/github.com/${CIRCLE_PROJECT_USERNAME}"' >> $BASH_ENV
+   - run: echo 'export DOCKER_REPO="$(if [ ${CIRCLE_PROJECT_USERNAME} == 'Securing-DevOps' ]; then echo securingdevops; else echo $DOCKER_USER; fi)"' >> $BASH_ENV
+   - run: mkdir -p "${GOPATH_BASE}"
+   - run: mkdir -p "${GOPATH_HEAD}/bin"
+   - run: go get github.com/govend/govend
 
-  services:
-    - docker
+   - run:
+       name: Build application container
+       command: |
+         go install --ldflags '-extldflags "-static"' github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME};
+         [ ! -e bin ] && mkdir bin;
+         cp "${GOPATH_HEAD}/bin/${CIRCLE_PROJECT_REPONAME}" bin/invoicer;
+         docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
 
-dependencies:
-  override:
-    - rm -rf ${GOPATH_BASE}/
-    - mkdir -p "$GOPATH_BASE"
-    - mkdir -p "$GOPATH/bin"
-    - cp -r ${HOME}/${CIRCLE_PROJECT_REPONAME} ${GOPATH_BASE}/
-    - go get github.com/govend/govend
-    - sudo pip install awscli
 
-test:
-  override:
-    - >
-        go test
-        github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
-    # Go applications in the busybox container must be built statically
-    - >
-        go install --ldflags '-extldflags "-static"'
-        github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}
-    - '[ ! -e bin ] && mkdir bin'
-    - cp "$GOPATH_HEAD/bin/${CIRCLE_PROJECT_REPONAME}" bin/deployer
-    - chmod +x deploymentTests/*
-    - docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .
 
-    # Run GOVEND to check if outdated dependencies are present
-    - 'GOPATH="$GOPATH_HEAD"; ( cd ${GOPATH_BASE}/${CIRCLE_PROJECT_REPONAME} && govend -u && git diff --quiet )'
-
-deployment:
-  hub_latest:
-    # appropriately tag and push the container to dockerhub
-    # only when on the master branch
-    branch: "master"
-    commands:
-      - >
-          docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
-      # write the sha256 sum to an artifact to make image verification easier
-      - >
-        docker images --no-trunc | awk '/^app/ {print $3}' |
-        tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt
-      - docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME}
-
-      # trigger ebs redeploy
-      #- aws elasticbeanstalk update-environment --region us-east-1 --application-name invoicer201707071231 --environment-id e-h4vyur8nup --version-label deployer-api
+- deploy:
+    #Push application container to dockerhub
+    command: |
+        docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+        echo ${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_TAG};
+        go install --ldflags '-extldflags "-static"' github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME};
+        [ -d bin ] || mkdir bin;
+        cp "$GOPATH_HEAD/bin/${CIRCLE_PROJECT_REPONAME}" bin/invoicer;
+        docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
+        docker images --no-trunc | awk '/^app/ {print $3}' | sudo tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt;
+        docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME};
