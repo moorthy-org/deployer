@@ -28,6 +28,8 @@ jobs:
             cp "${GOPATH_HEAD}/bin/${CIRCLE_PROJECT_REPONAME}" bin/invoicer;
             docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
 
+      - run: pwd
+      - run: ls -la
       - deploy:
           #Push application container to dockerhub
           command: |

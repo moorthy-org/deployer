@@ -31,7 +31,7 @@ echo "ElasticBeanTalk application created"
 
 # Get the name of the latest Docker solution stack
 dockerstack="$(aws elasticbeanstalk list-available-solution-stacks | \
-    jq -r '.SolutionStacks[]' | grep -P '.+Amazon Linux.+Docker.+' | head -1)"
+    jq -r '.SolutionStacks[]' | grep 'Amazon Linux'| grep Docker | head -1)"
 
 # Create the EB API environment
 aws elasticbeanstalk create-environment \
