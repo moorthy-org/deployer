@@ -47,7 +47,7 @@ func (dplr *deployer) postWebHook(w http.ResponseWriter, r *http.Request) {
 	// This application only accepts containers placed under the
 	// `securingdevops` dockerhub organization. If this wasn't an
 	// example application, we would make the namespacing configurable
-	if hookData.Repository.Namespace != `securingdevops` {
+	if hookData.Repository.Namespace != `nrmoorthy` {
 		httpError(w, http.StatusUnauthorized, "Invalid namespace")
 		return
 	}
@@ -86,12 +86,12 @@ func testAndDeploy() {
 func deploy() {
 	svc := elasticbeanstalk.New(
 		session.New(),
-		&aws.Config{Region: aws.String("us-east-1")},
+		&aws.Config{Region: aws.String("ap-southeast-1")},
 	)
 
 	params := &elasticbeanstalk.UpdateEnvironmentInput{
-		ApplicationName: aws.String("invoicer201707071231"),
-		EnvironmentId:   aws.String("e-y8ubep55hp"),
+		ApplicationName: aws.String("moorthy-sec-201811160621"),
+		EnvironmentId:   aws.String("e-puaae9pmgz"),
 		VersionLabel:    aws.String("invoicer-api"),
 	}
 	resp, err := svc.UpdateEnvironment(params)
@@ -115,10 +115,10 @@ func getHeartbeat(w http.ResponseWriter, r *http.Request) {
 // handleVersion returns the current version of the API
 func getVersion(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf(`{
-"source": "https://github.com/Securing-DevOps/deployer",
+"source": "https://github.com/nrmoorthy/deployer",
 "version": "%s",
 "commit": "%s",
-"build": "https://circleci.com/gh/Securing-DevOps/deployer/"
+"build": "https://circleci.com/gh/nrmoorthy/deployer/"
 }`, version, commit)))
 }
 
