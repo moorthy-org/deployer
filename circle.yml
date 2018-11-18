@@ -48,8 +48,7 @@ deployment:
     branch: "master"
     commands:
       - >
-          docker login -e ${DOCKER_EMAIL}
-          -u ${DOCKER_USER} -p ${DOCKER_PASS}
+          docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
       # write the sha256 sum to an artifact to make image verification easier
       - >
         docker images --no-trunc | awk '/^app/ {print $3}' |
@@ -57,4 +56,4 @@ deployment:
       - docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME}
 
       # trigger ebs redeploy
-      - aws elasticbeanstalk update-environment --region us-east-1 --application-name invoicer201707071231 --environment-id e-h4vyur8nup --version-label deployer-api
+      #- aws elasticbeanstalk update-environment --region us-east-1 --application-name invoicer201707071231 --environment-id e-h4vyur8nup --version-label deployer-api
