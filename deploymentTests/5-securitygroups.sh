@@ -6,11 +6,11 @@ aws:
     accountnumber: 775525714357
 
 components:
-    - name: load-balancer
-      type: elb
-      tag:
-          key: elasticbeanstalk:environment-name
-          value: moorthy-sec-201811160621-invoicer-api
+    # - name: load-balancer
+    #   type: elb
+    #   tag:
+    #       key: elasticbeanstalk:environment-name
+    #       value: moorthy-sec-201811160621-invoicer-api
 
     - name: application
       type: ec2
