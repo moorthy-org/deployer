@@ -6,11 +6,11 @@ aws:
     accountnumber: 775525714357
 
 components:
-    # - name: load-balancer
-    #   type: elb
-    #   tag:
-    #       key: elasticbeanstalk:environment-name
-    #       value: moorthy-sec-201811160621-invoicer-api
+    - name: load-balancer
+      type: elb
+      tag:
+          key: elasticbeanstalk:environment-name
+          value: moorthy-sec-201811160621-invoicer-api
 
     - name: application
       type: ec2
@@ -23,7 +23,7 @@ components:
 #       tag:
 #           key: environment-name
 #           value: moorthy-sec-201811160621
-
+#
 #    - name: bastion
 #      type: ec2
 #      tag:
@@ -39,10 +39,10 @@ rules:
       dst: application
       dport: 80
 
-    - src: application
-      dst: database
-      dport: 5432
-
+#    - src: application
+#      dst: database
+#      dport: 5432
+#
 #    - src: bastion
 #      dst: application
 #      dport: 22
