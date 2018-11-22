@@ -44,4 +44,5 @@ jobs:
             docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
             docker images --no-trunc | awk '/^app/ {print $3}' | sudo tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt;
             docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME};
+            aws configure set default.region ap-southeast-1
             aws elasticbeanstalk update-environment --application-name deployer201811140731 --environment-id e-tdcdqrfw5g --version-label deployer-api;
