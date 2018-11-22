@@ -38,6 +38,7 @@ jobs:
             go install --ldflags '-extldflags "-static"' github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME};
             [ -d bin ] || mkdir bin;
             cp "$GOPATH_HEAD/bin/${CIRCLE_PROJECT_REPONAME}" bin/deployer;
+            chmod +x deploymentTests/*
             docker build -t ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME} .;
             docker images --no-trunc | awk '/^app/ {print $3}' | sudo tee $CIRCLE_ARTIFACTS/docker-image-shasum256.txt;
             docker push ${DOCKER_REPO}/${CIRCLE_PROJECT_REPONAME};
