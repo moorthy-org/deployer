@@ -5,24 +5,24 @@ aws:
     region: ap-southeast-1
     accountnumber: 775525714357
 
-components:
-    - name: load-balancer
-      type: elb
-      tag:
-          key: elasticbeanstalk:environment-name
-          value: moorthy-sec-201811160621-invoicer-api
-
-    - name: application
-      type: ec2
-      tag:
-          key: elasticbeanstalk:environment-name
-          value: moorthy-sec-201811160621-invoicer-api
-
-    - name: database
-      type: rds
-      tag:
-          key: environment-name
-          value: moorthy-sec-201811160621
+# components:
+#     - name: load-balancer
+#       type: elb
+#       tag:
+#           key: elasticbeanstalk:environment-name
+#           value: moorthy-sec-201811160621-invoicer-api
+#
+#     - name: application
+#       type: ec2
+#       tag:
+#           key: elasticbeanstalk:environment-name
+#           value: moorthy-sec-201811160621-invoicer-api
+#
+#     - name: database
+#       type: rds
+#       tag:
+#           key: environment-name
+#           value: moorthy-sec-201811160621
 
 #    - name: bastion
 #      type: ec2
@@ -33,7 +33,7 @@ components:
 rules:
     - src: 0.0.0.0/0
       dst: load-balancer
-      dport: 443
+      dport: 80
 
     - src: load-balancer
       dst: application
