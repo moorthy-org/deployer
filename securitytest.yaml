@@ -1,6 +1,3 @@
-#!/bin/bash
-go get -u github.com/jvehent/pineapple
-$GOPATH/bin/pineapple <<EOF
 aws:
     region: ap-southeast-1
     accountnumber: 775525714357
@@ -41,8 +38,8 @@ rules:
 
     - src: application
       dst: database
-      dport: 5432      
-#
+      dport: 5432
+#     sg-0d84492b2d16d624f
 #    - src: bastion
 #      dst: application
 #      dport: 22
@@ -50,4 +47,3 @@ rules:
 #    - src: bastion
 #      dst: database
 #      dport: 5432
-EOF
